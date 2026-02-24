@@ -3,36 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bowling Logic Explorer - Top Score Version</title>
+    <title>Bowling Simulator - Responsive</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8fafc; display: flex; flex-direction: column; align-items: center; padding: 40px; }
-        .container { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); width: 1050px; }
-        h2 { color: #1e3a8a; text-align: center; margin-bottom: 30px; display: flex; justify-content: center; align-items: center; gap: 10px; }
-        
-        /* Table Layout */
-        .scorecard { border-collapse: collapse; width: 100%; table-layout: fixed; margin-bottom: 25px; border: 2px solid #1e3a8a; }
+        :root {
+            --primary-blue: #1e3a8a;
+            --accent-orange: #ea580c;
+            --bg-slate: #f8fafc;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-slate); 
+            margin: 0;
+            padding: 20px;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+        }
+
+        .container { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); 
+            width: 95%; 
+            max-width: 1100px; 
+            box-sizing: border-box;
+        }
+
+        h2 { color: var(--primary-blue); text-align: center; margin-top: 0; font-size: 1.5rem; }
+
+        /* Responsive Table Wrapper */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto; /* เปิดการเลื่อนแนวนอนบนมือถือ */
+            margin-bottom: 20px;
+            border: 2px solid var(--primary-blue);
+            border-radius: 8px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .scorecard { 
+            border-collapse: collapse; 
+            min-width: 900px; /* บังคับความกว้างขั้นต่ำเพื่อให้ตารางไม่เบียด */
+            width: 100%; 
+            table-layout: fixed;
+        }
+
         .scorecard th, .scorecard td { border: 1px solid #94a3b8; text-align: center; }
-        .frame-num { background: #1e3a8a; color: white; padding: 8px; font-weight: bold; font-size: 14px; }
+        .frame-num { background: var(--primary-blue); color: white; padding: 10px; font-weight: bold; font-size: 14px; }
         
-        /* แถวคะแนนรวม (ย้ายมาข้างบน) */
-        .frame-total { height: 60px; font-size: 24px; font-weight: bold; color: #ea580c; background: #fff7ed; vertical-align: middle; }
+        /* แถวคะแนนรวม */
+        .frame-total { height: 60px; font-size: 22px; font-weight: bold; color: var(--accent-orange); background: #fff7ed; }
         
-        /* แถวช่องกรอก (ย้ายมาข้างล่าง) */
-        .rolls { display: flex; height: 40px; background: #fff; }
-        .rolls input { width: 100%; border: none; text-align: center; font-size: 18px; font-weight: bold; outline: none; background: transparent; }
+        /* แถวช่องกรอก */
+        .rolls { display: flex; height: 45px; background: #fff; }
+        .rolls input { 
+            width: 100%; 
+            border: none; 
+            text-align: center; 
+            font-size: 18px; 
+            font-weight: bold; 
+            outline: none;
+            -moz-appearance: textfield;
+        }
         .rolls input:nth-child(1) { border-right: 1px solid #94a3b8; }
         .rolls input:nth-child(3) { border-left: 1px solid #94a3b8; }
         input:focus { background: #e2e8f0; }
 
         /* Logic Box */
-        .logic-panel { background: #fefce8; border-left: 4px solid #f59e0b; padding: 20px; margin: 0 auto 30px auto; width: 95%; border-radius: 4px; }
-        .logic-panel h3 { margin-top: 0; color: #92400e; font-size: 1.1rem; border-bottom: 1px solid #fef3c7; padding-bottom: 8px; }
-        .log-item { font-size: 1rem; color: #451a03; font-family: 'Consolas', monospace; margin: 6px 0; }
-        .highlight { font-weight: bold; color: #ea580c; }
+        .logic-panel { 
+            background: #fefce8; 
+            border-left: 4px solid #f59e0b; 
+            padding: 15px; 
+            margin-bottom: 20px; 
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 4px; 
+        }
+        .logic-panel h3 { margin: 0 0 10px 0; color: #92400e; font-size: 1rem; }
+        .log-item { font-size: 0.9rem; color: #451a03; font-family: 'Consolas', monospace; margin: 4px 0; word-break: break-all; }
+        .highlight { font-weight: bold; color: var(--accent-orange); }
 
         /* Total Box */
-        .total-container { display: flex; justify-content: center; margin-top: 10px; }
-        .total-box { background: #1e3a8a; color: white; padding: 15px 50px; border-radius: 8px; font-size: 26px; font-weight: bold; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .total-container { display: flex; justify-content: center; width: 100%; }
+        .total-box { 
+            background: var(--primary-blue); 
+            color: white; 
+            padding: 15px 40px; 
+            border-radius: 8px; 
+            font-size: 1.5rem; 
+            font-weight: bold;
+            text-align: center;
+        }
+
+        /* สำหรับมือถือจอเล็ก */
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            .container { padding: 15px; }
+            h2 { font-size: 1.2rem; }
+            .total-box { font-size: 1.2rem; padding: 12px 30px; }
+            .instructions { font-size: 0.8rem; text-align: center; color: #64748b; margin-top: 15px; }
+        }
+
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
     </style>
 </head>
@@ -41,17 +114,25 @@
 <div class="container">
     <h2>🎳 Bowling Score Simulator</h2>
     
-    <table class="scorecard">
-        <tr id="frame-numbers"></tr>
-        <tr id="score-rows"></tr> <tr id="input-rows"></tr> </table>
+    <div class="table-wrapper">
+        <table class="scorecard">
+            <tr id="frame-numbers"></tr>
+            <tr id="score-rows"></tr>
+            <tr id="input-rows"></tr>
+        </table>
+    </div>
 
     <div class="logic-panel">
-        <h3>🔍 วิเคราะห์สูตรการคำนวณ (Real-time Trace):</h3>
-        <div id="logic-content">ระบบพร้อมคำนวณ... กรุณากรอกพินที่ล้มในช่องด้านบน</div>
+        <h3>🔍 วิเคราะห์สูตร (Real-time Trace):</h3>
+        <div id="logic-content">พร้อมคำนวณ... กรุณากรอกพินด้านบน</div>
     </div>
 
     <div class="total-container">
         <div class="total-box">Total Score: <span id="grand-total">0</span></div>
+    </div>
+
+    <div class="instructions">
+        💡 บนมือถือ: สามารถปัดตารางไปทางซ้าย-ขวาเพื่อดูเฟรมที่ 1-10 ได้
     </div>
 </div>
 
@@ -60,20 +141,18 @@
     const inputRows = document.getElementById('input-rows');
     const scoreRows = document.getElementById('score-rows');
 
+    // สร้างตาราง
     for (let i = 1; i <= 10; i++) {
-        // 1. หัวตาราง (เลขเฟรม)
         const th = document.createElement('th');
         th.className = 'frame-num';
         th.innerText = `เฟรม ${i}`;
         frameNumbersRow.appendChild(th);
 
-        // 2. แถวคะแนนรวม (Frame Total) - ย้ายมาลำดับที่ 2
         const tdScore = document.createElement('td');
         tdScore.id = `f${i}-total`;
         tdScore.className = 'frame-total';
         scoreRows.appendChild(tdScore);
 
-        // 3. แถวช่องกรอกคะแนน (Rolls) - ย้ายมาลำดับที่ 3
         const tdInput = document.createElement('td');
         const rollDiv = document.createElement('div');
         rollDiv.className = 'rolls';
@@ -81,6 +160,7 @@
         for (let r = 1; r <= rollCount; r++) {
             const input = document.createElement('input');
             input.type = 'number';
+            input.inputMode = 'numeric'; // แสดงคีย์บอร์ดตัวเลขบนมือถือ
             input.id = `f${i}r${r}`;
             input.oninput = calculateBowling;
             rollDiv.appendChild(input);
@@ -89,6 +169,7 @@
         inputRows.appendChild(tdInput);
     }
 
+    // ฟังก์ชันคำนวณ (เหมือนเดิม แต่รองรับการแสดงผล Responsive)
     function calculateBowling() {
         let rolls = [];
         let rawInputs = [];
@@ -116,39 +197,39 @@
             let currentRoll = rolls[rollIdx];
             if (currentRoll === null) break;
 
-            if (f < 9 && currentRoll === 10) { // STRIKE
+            if (f < 9 && currentRoll === 10) {
                 let b1 = rolls[rollIdx + 2];
                 let b2 = (b1 === 10 && f < 8) ? rolls[rollIdx + 4] : rolls[rollIdx + 3];
                 if (b1 !== null && b2 !== null) {
                     let fScore = 10 + b1 + b2; total += fScore; frameTotals[f] = total;
-                    logs.push(`เฟรม ${f+1} [Strike]: 10 + (${b1} + ${b2}) = ${fScore} | สะสม: <span class="highlight">${total}</span>`);
+                    logs.push(`F${f+1} [Strike]: 10+(${b1}+${b2})=${fScore} | <span class="highlight">Sum:${total}</span>`);
                 }
                 rollIdx += 2;
-            } else if (f < 9 && (currentRoll + rolls[rollIdx+1] === 10)) { // SPARE
+            } else if (f < 9 && (currentRoll + rolls[rollIdx+1] === 10)) {
                 let b1 = rolls[rollIdx + 2];
                 if (b1 !== null) {
                     let fScore = 10 + b1; total += fScore; frameTotals[f] = total;
-                    logs.push(`เฟรม ${f+1} [Spare]: 10 + (${b1}) = ${fScore} | สะสม: <span class="highlight">${total}</span>`);
+                    logs.push(`F${f+1} [Spare]: 10+(${b1})=${fScore} | <span class="highlight">Sum:${total}</span>`);
                 }
                 rollIdx += 2;
-            } else if (f < 9) { // OPEN
+            } else if (f < 9) {
                 let r2 = rolls[rollIdx+1];
                 if (r2 !== null) {
                     let fScore = currentRoll + r2; total += fScore; frameTotals[f] = total;
-                    logs.push(`เฟรม ${f+1} [Open]: ${currentRoll} + ${r2} = ${fScore} | สะสม: <span class="highlight">${total}</span>`);
+                    logs.push(`F${f+1} [Open]: ${currentRoll}+${r2}=${fScore} | <span class="highlight">Sum:${total}</span>`);
                 }
                 rollIdx += 2;
-            } else { // FRAME 10
+            } else {
                 let r1 = rolls[rollIdx], r2 = rolls[rollIdx+1], r3 = rolls[rollIdx+2];
                 if (r1 !== null && r2 !== null) {
                     let fScore = r1 + r2 + (isNaN(r3) ? 0 : r3); total += fScore; frameTotals[f] = total;
-                    logs.push(`เฟรม 10: ${r1} + ${r2} + ${isNaN(r3)?0:r3} = ${fScore} | สะสม: <span class="highlight">${total}</span>`);
+                    logs.push(`F10: ${r1}+${r2}+${isNaN(r3)?0:r3}=${fScore} | <span class="highlight">Sum:${total}</span>`);
                 }
             }
         }
         for (let i = 1; i <= 10; i++) document.getElementById(`f${i}-total`).innerText = frameTotals[i-1] || "";
         document.getElementById('grand-total').innerText = total;
-        document.getElementById('logic-content').innerHTML = logs.length > 0 ? logs.map(l => `<div class="log-item">${l}</div>`).join('') : "กรอกคะแนนเพื่อดู Trace Log...";
+        document.getElementById('logic-content').innerHTML = logs.length > 0 ? logs.map(l => `<div class="log-item">${l}</div>`).join('') : "กรอกคะแนนเพื่อเริ่มวิเคราะห์...";
     }
 </script>
 
