@@ -9,6 +9,7 @@
             --primary-blue: #1e3a8a;
             --accent-orange: #ea580c;
             --bg-slate: #f8fafc;
+            --danger-red: #dc2626;
         }
 
         body { 
@@ -33,10 +34,9 @@
 
         h2 { color: var(--primary-blue); text-align: center; margin-top: 0; font-size: 1.5rem; }
 
-        /* Responsive Table Wrapper */
         .table-wrapper {
             width: 100%;
-            overflow-x: auto; /* เปิดการเลื่อนแนวนอนบนมือถือ */
+            overflow-x: auto;
             margin-bottom: 20px;
             border: 2px solid var(--primary-blue);
             border-radius: 8px;
@@ -45,7 +45,7 @@
 
         .scorecard { 
             border-collapse: collapse; 
-            min-width: 900px; /* บังคับความกว้างขั้นต่ำเพื่อให้ตารางไม่เบียด */
+            min-width: 900px; 
             width: 100%; 
             table-layout: fixed;
         }
@@ -53,10 +53,8 @@
         .scorecard th, .scorecard td { border: 1px solid #94a3b8; text-align: center; }
         .frame-num { background: var(--primary-blue); color: white; padding: 10px; font-weight: bold; font-size: 14px; }
         
-        /* แถวคะแนนรวม */
         .frame-total { height: 60px; font-size: 22px; font-weight: bold; color: var(--accent-orange); background: #fff7ed; }
         
-        /* แถวช่องกรอก */
         .rolls { display: flex; height: 45px; background: #fff; }
         .rolls input { 
             width: 100%; 
@@ -65,13 +63,11 @@
             font-size: 18px; 
             font-weight: bold; 
             outline: none;
-            -moz-appearance: textfield;
         }
         .rolls input:nth-child(1) { border-right: 1px solid #94a3b8; }
         .rolls input:nth-child(3) { border-left: 1px solid #94a3b8; }
         input:focus { background: #e2e8f0; }
 
-        /* Logic Box */
         .logic-panel { 
             background: #fefce8; 
             border-left: 4px solid #f59e0b; 
@@ -85,8 +81,16 @@
         .log-item { font-size: 0.9rem; color: #451a03; font-family: 'Consolas', monospace; margin: 4px 0; word-break: break-all; }
         .highlight { font-weight: bold; color: var(--accent-orange); }
 
-        /* Total Box */
-        .total-container { display: flex; justify-content: center; width: 100%; }
+        /* การจัดวางปุ่มด้านล่าง */
+        .controls-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
         .total-box { 
             background: var(--primary-blue); 
             color: white; 
@@ -95,15 +99,27 @@
             font-size: 1.5rem; 
             font-weight: bold;
             text-align: center;
+            min-width: 200px;
         }
 
-        /* สำหรับมือถือจอเล็ก */
+        .reset-btn {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .reset-btn:hover { background: #b91c1c; }
+        .reset-btn:active { transform: scale(0.95); }
+
         @media (max-width: 600px) {
-            body { padding: 10px; }
-            .container { padding: 15px; }
-            h2 { font-size: 1.2rem; }
-            .total-box { font-size: 1.2rem; padding: 12px 30px; }
-            .instructions { font-size: 0.8rem; text-align: center; color: #64748b; margin-top: 15px; }
+            .controls-container { flex-direction: column; }
+            .total-box, .reset-btn { width: 100%; }
         }
 
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -112,7 +128,7 @@
 <body>
 
 <div class="container">
-    <h2>🎳 Bowling Score Simulator</h2>
+    <h2> bowling Score Simulator</h2>
     
     <div class="table-wrapper">
         <table class="scorecard">
@@ -127,13 +143,11 @@
         <div id="logic-content">พร้อมคำนวณ... กรุณากรอกพินด้านบน</div>
     </div>
 
-    <div class="total-container">
+    <div class="controls-container">
         <div class="total-box">Total Score: <span id="grand-total">0</span></div>
+        <button class="reset-btn" onclick="resetScores()">ล้างคะแนนทั้งหมด</button>
     </div>
 
-    <div class="instructions">
-        💡 บนมือถือ: สามารถปัดตารางไปทางซ้าย-ขวาเพื่อดูเฟรมที่ 1-10 ได้
-    </div>
 </div>
 
 <script>
@@ -141,7 +155,6 @@
     const inputRows = document.getElementById('input-rows');
     const scoreRows = document.getElementById('score-rows');
 
-    // สร้างตาราง
     for (let i = 1; i <= 10; i++) {
         const th = document.createElement('th');
         th.className = 'frame-num';
@@ -160,7 +173,7 @@
         for (let r = 1; r <= rollCount; r++) {
             const input = document.createElement('input');
             input.type = 'number';
-            input.inputMode = 'numeric'; // แสดงคีย์บอร์ดตัวเลขบนมือถือ
+            input.inputMode = 'numeric';
             input.id = `f${i}r${r}`;
             input.oninput = calculateBowling;
             rollDiv.appendChild(input);
@@ -169,7 +182,15 @@
         inputRows.appendChild(tdInput);
     }
 
-    // ฟังก์ชันคำนวณ (เหมือนเดิม แต่รองรับการแสดงผล Responsive)
+    // ฟังก์ชันล้างคะแนน
+    function resetScores() {
+        if(confirm("คุณต้องการล้างข้อมูลการโยนทั้งหมดใช่หรือไม่?")) {
+            const allInputs = document.querySelectorAll('input');
+            allInputs.forEach(input => input.value = '');
+            calculateBowling(); // เรียกคำนวณใหม่เพื่อเคลียร์ตัวเลขบนบอร์ด
+        }
+    }
+
     function calculateBowling() {
         let rolls = [];
         let rawInputs = [];
